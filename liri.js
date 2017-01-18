@@ -1,8 +1,19 @@
 //Load libraries
 var request = require('request');
 var twitter = require('twitter');
-var spotify = require('spotify');
+var SpotifyWebApi = require('spotify-web-api-node');
+var twitterKeys = require('./keys.js');
+var fs = require('fs');
 
+var queryURL;
+var array = [];
+
+var client = new twitter({
+  consumer_key: twitterKeys.keys.consumer_key,
+  consumer_secret: twitterKeys.keys.consumer_secret,
+  access_token_key: twitterKeys.keys.access_token_key,
+  access_token_secret: twitterKeys.keys.access_token_secret
+});
 
 //takes in the first argument, we expect a command
 var command = process.argv[2];
@@ -13,81 +24,170 @@ var argument = process.argv[3];
 var movieCall = function(){
 
 	//place the argument in the queryURL
-	queryURL = "http://www.omdbapi.com/?t="+ argument +"&y=&plot=short&r=json";
+	queryURL = "http://www.omdbapi.com/?t="+ argument +"&y=&plot=short&r=json&tomatoes=true";
 
 	//request info from IMBD
 	request(queryURL, function(error, response, body){
 		if (!error && response.statusCode == 200){
 			console.log(JSON.parse(body).Title);
+			array.push(JSON.parse(body).Title);
 			console.log(JSON.parse(body).Year);
+			array.push(JSON.parse(body).Year);
 			console.log(JSON.parse(body).imdbRating);
+			array.push(JSON.parse(body).imdbRating);
 			console.log(JSON.parse(body).Country);
+			array.push(JSON.parse(body).Country);
 			console.log(JSON.parse(body).Language);
+			array.push(JSON.parse(body).Language);
 			console.log(JSON.parse(body).Plot);
+			array.push(JSON.parse(body).Plot);
 			console.log(JSON.parse(body).Actors);
-			// console.log(JSON.parse(body).);
-			// console.log(JSON.parse(body));
+			array.push(JSON.parse(body).Actors);
+			console.log(JSON.parse(body).tomatoRating);
+			array.push(JSON.parse(body).tomatoRating);
+			console.log(JSON.parse(body).tomatoURL);
+			array.push(JSON.parse(body).tomatoURL);
+			
+			write();
+		} else {
+			console.log(error);
 		}
 	});
-}
+};
 
 var tweet = function(){
 
-	var params = {screen_name: 'nodejs'};
+	var params = {screen_name: 'katyperry',
+				count: 20};
+	
 	client.get('statuses/user_timeline', params, function(error, tweets, response) {
+ 		var stop = 20;
+ 		if (tweets.length<20){
+ 			stop = tweets.length;
+ 		}
  		if (!error) {
-    		console.log(tweets);
+ 			for (i=0; i< stop; i++){
+ 				console.log(i+1);
+ 				console.log(tweets[i].text);
+ 				console.log(tweets[i].created_at);
+ 				array.push(tweets[i].text);
+ 				array.push(tweets[i].created_at);
+ 				write();
+ 			}
+  		}else{
+  			console.log(error);
   		}
 	});
+
+
 };
 
 var spot = function(){
 
-	// spotify.search({ type: 'track', query: argument }, function(err, data) {
- //    	if ( err ) {
- //        	console.log('Error occurred: ' + err);
- //        	return;
- //    	}
+// credentials are optional
+	var spotifyApi = new SpotifyWebApi({
+		clientId : '7e6408dcc536449fbb8af56422895224',
+		clientSecret : '50a608cd09054a31b28790ab94f7ca56',
+		redirectUri : 'http://www.example.com/callback'
+	});
 
- // 	console.log(data.tracks.items[0].album.name);
- // 	console.log(data.tracks.items[0].artists[1].name);
- // 	console.log(data.tracks.items[0].artists[0].name);
- // 	console.log(data.tracks.items[0].album.external_urls.spotify);
-	// });
-	queryURL = "https://api.spotify.com/v1/search?q="+ argument;
-
+	queryURL = "https://api.spotify.com/v1/search?q=" + argument + "&type=track&market=US"
 
 	request(queryURL, function(error, response, body){
 		if (!error && response.statusCode == 200){
-			console.log(JSON.parse(body));
-			// console.log(JSON.parse(body).Year);
-			// console.log(JSON.parse(body).imdbRating);
-			// console.log(JSON.parse(body).Country);
-			// console.log(JSON.parse(body).Language);
-			// console.log(JSON.parse(body).Plot);
-			// console.log(JSON.parse(body).Actors);
-			// console.log(JSON.parse(body).);
-			// console.log(JSON.parse(body));
+			var artist = JSON.parse(body).tracks.items[0].album.artists[0].name;
+			var song = JSON.parse(body).tracks.items[0].name;
+			var album = JSON.parse(body).tracks.items[0].album.name;
+			var link = JSON.parse(body).tracks.items[0].album.artists[0].external_urls.spotify;
+			console.log('Artist: ' + artist);
+			console.log('Song:   ' + song);
+ 			console.log('Album:  ' + album);
+    		console.log('Link:   ' + link);
+			array.push(artist);
+			array.push(song);
+			array.push(album);
+			array.push(link);
+			write();
+		} else {
+			console.log(error);
 		}
 	});
-	console.log('hello');
-}
 
-//checks the entered command
-switch (command){
-	case 'my-tweets':
-        tweet();
-        break;
-    case 'spotify-this-song':
-        spot();
-        break;
-    case 'movie-this':
-        movieCall();
-        break;
-    case 'do-what-it-says':
-        
-        break;
-    default: 
-   	console.log('Sorry, invalid command.');
+//Another way to call spotify
+	// spotifyApi.searchTracks(argument)
+ // 	.then(function(data) {
+ // 		console.log('Artist: ' + data.body.tracks.items[0].album.artists[0].name);
+ // 		console.log('Song:   ' +data.body.tracks.items[0].name);
+ // 		console.log('Album:  ' +data.body.tracks.items[0].album.name);
+ //    	console.log('Link:   ' +data.body.tracks.items[0].album.artists[0].external_urls.spotify);
+
+ // 	}, function(err) {
+ //    		console.error(err);
+ //  	});
+
 };
 
+var emptyArgument = function(songOrMovie){
+	switch (songOrMovie){
+		case 'song':
+			argument = 'Ace of base the sign';
+			break;
+		case 'movie':
+			argument = 'Mr Nobody';
+			break;
+		default:
+			argument = '';
+	}
+};
+
+var doThis = function(){
+	fs.readFile('random.txt','utf8', function(error,data){
+	var holdItems = data.split(',');
+
+	command = holdItems[0];
+	argument = holdItems[1];
+
+	run();
+	});
+};
+
+
+var write = function(){
+	array.push('\r\n');
+	console.log(array);
+	fs.appendFile('log.txt', array , function(err){
+		if (err){
+			return console.log(err);
+		}
+
+		console.log('Added succesfully');
+	});
+};
+
+//checks the entered command
+var run = function(){
+	switch (command){
+		case 'my-tweets':
+	        tweet();
+	        break;
+	    case 'spotify-this-song':
+	        if (argument == undefined){
+	        	emptyArgument('song');
+	        };
+	        spot();
+	        break;
+	    case 'movie-this':
+	    	if (argument == undefined){
+	        	emptyArgument('movie');
+	        };
+	        movieCall();
+	        break;
+	    case 'do-what-it-says':
+	        doThis();
+	        break;
+	    default: 
+	   	console.log('Sorry, invalid command.');
+	}
+};
+
+run();
