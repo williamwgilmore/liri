@@ -184,8 +184,13 @@ var run = function(){
 	    case 'do-what-it-says':
 	        doThis();
 	        break;
+	    case 'help':
+	    	console.log('"my-tweets" lists the last 20 tweets of Katy Perry');
+	    	console.log('"spotify-this-song <songname(optional)>" will return information and a link to the song.')
+	    	console.log('"movie-this <moviename(optional)>" returns infromation about the movie');
+	    	console.log('"do-what-it-says" runs one of the previous commands from a text file.');
 	    default: 
-	   	console.log('Sorry, invalid command.');
+	   	console.log('Sorry, invalid command. Type "node liri.js help" to see available commands.');
 	}
 };
 
