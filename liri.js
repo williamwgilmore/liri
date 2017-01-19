@@ -154,7 +154,6 @@ var doThis = function(){
 
 var write = function(){
 	array.push('\r\n');
-	console.log(array);
 	fs.appendFile('log.txt', array , function(err){
 		if (err){
 			return console.log(err);
