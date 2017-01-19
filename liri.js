@@ -72,6 +72,7 @@ var tweet = function(){
  				console.log(tweets[i].created_at);
  				array.push(tweets[i].text);
  				array.push(tweets[i].created_at);
+
  				write();
  			}
   		}else{
@@ -107,6 +108,7 @@ var spot = function(){
 			array.push(song);
 			array.push(album);
 			array.push(link);
+			
 			write();
 		} else {
 			console.log(error);
@@ -158,8 +160,6 @@ var write = function(){
 		if (err){
 			return console.log(err);
 		}
-
-		console.log('Added succesfully');
 	});
 };
 
@@ -186,9 +186,10 @@ var run = function(){
 	        break;
 	    case 'help':
 	    	console.log('"my-tweets" lists the last 20 tweets of Katy Perry');
-	    	console.log('"spotify-this-song <songname(optional)>" will return information and a link to the song.')
-	    	console.log('"movie-this <moviename(optional)>" returns infromation about the movie');
+	    	console.log('"spotify-this-song" "<songname(optional)>" will return information and a link to the song.')
+	    	console.log('"movie-this" "<moviename(optional)>" returns infromation about the movie');
 	    	console.log('"do-what-it-says" runs one of the previous commands from a text file.');
+	    	break;
 	    default: 
 	   	console.log('Sorry, invalid command. Type "node liri.js help" to see available commands.');
 	}

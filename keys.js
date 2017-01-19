@@ -1,5 +1,3 @@
-console.log('this is loaded');
-
 exports.keys = {
   consumer_key: 'RQUhfRnpzXAVOFlhQgxE9X52B',
   consumer_secret: 'J4lmuSbQTxQdPqpFxcV9Bzw0HnmpNRkrn0h7rQVGRkaI98RQnE',
